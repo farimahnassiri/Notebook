@@ -64,12 +64,34 @@ def write_context_file(file_structure, files_content, output_file):
             f.write(content)
             f.write("\n// END OF FILE\n\n")
 
+def update_gitignore(root_dir, script_name, output_file):
+    gitignore_path = os.path.join(root_dir, '.gitignore')
+    entries_to_add = [
+        f'\n# Ignore {script_name} and its output',
+        script_name,
+        output_file
+    ]
+    
+    if os.path.exists(gitignore_path):
+        with open(gitignore_path, 'r+', encoding='utf-8') as f:
+            content = f.read()
+            if not any(entry in content for entry in entries_to_add[1:]):
+                f.seek(0, 2)  # Move to the end of the file
+                f.write('\n'.join(entries_to_add))
+    else:
+        with open(gitignore_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(entries_to_add))
+    
+    print(f"Updated .gitignore to ignore {script_name} and {output_file}")
+
 def main():
     root_dir = '.'
-    output_file = 'get_context.txt'
+    script_name = 'get_context.py'
+    output_file = 'GET_CONTEXT.txt'
     
     file_structure, files_content = get_file_structure(root_dir)
     write_context_file(file_structure, files_content, output_file)
+    update_gitignore(root_dir, script_name, output_file)
     print(f"Context file '{output_file}' created successfully!")
 
 if __name__ == "__main__":
